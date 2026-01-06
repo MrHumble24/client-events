@@ -276,12 +276,3 @@ export const useMainButton = (
     };
   }, [text, onClick, visible, disabled, loading]);
 };
-
-// Extend Window interface for Telegram
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp?: unknown;
-    };
-  }
-}
