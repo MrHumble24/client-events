@@ -62,9 +62,7 @@ export default function ErrorOverlay() {
         type: "promise",
         message: "Unhandled Promise Rejection",
         details:
-          event.reason?.message ||
-          event.reason?.toString() ||
-          "Unknown error",
+          event.reason?.message || event.reason?.toString() || "Unknown error",
       });
     };
 

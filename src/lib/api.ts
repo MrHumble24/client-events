@@ -36,7 +36,7 @@ export const setInitData = (data: string) => {
   initData = data;
 };
 
-api.interceptors.request.use(config => {
+api.interceptors.request.use((config) => {
   if (initData) {
     config.headers.Authorization = `tma ${initData}`;
   }
@@ -48,12 +48,13 @@ api.interceptors.request.use(config => {
 // ============================================
 
 api.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     const status = error.response?.status;
     const url = error.config?.url;
     const method = error.config?.method?.toUpperCase();
-    const message = error.response?.data?.message || error.message || "Unknown error";
+    const message =
+      error.response?.data?.message || error.message || "Unknown error";
     const details = JSON.stringify(error.response?.data, null, 2);
 
     logApiError(
