@@ -18,6 +18,31 @@ import {
 import { setInitData, userApi } from "../lib/api";
 import { useAppStore } from "../store/useAppStore";
 
+// Extend Window interface for Telegram
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        initData: string;
+        initDataUnsafe: {
+          user?: {
+            id: number;
+            first_name: string;
+            last_name?: string;
+            username?: string;
+            language_code?: string;
+          };
+          auth_date: number;
+          hash: string;
+        };
+        ready: () => void;
+        expand: () => void;
+        close: () => void;
+        colorScheme: "light" | "dark";
+      };
+    };
+  }
+}
 // ============================================
 // TELEGRAM CONTEXT
 // ============================================
@@ -124,9 +149,18 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
           mainButton.mount();
         }
 
-        // Get init data
-        const rawData = initData.raw();
+        // Get init data - try multiple methods
+        let rawData = initData.raw();
+
+        // Fallback to window.Telegram.WebApp.initData if SDK method fails
+        if (!rawData && window.Telegram?.WebApp?.initData) {
+          rawData = window.Telegram.WebApp.initData;
+          console.log("Using fallback initData from window.Telegram.WebApp");
+        }
+
         const data = initData.state();
+
+        console.log("Telegram initData raw:", rawData ? "present" : "missing");
 
         if (rawData) {
           setInitDataRawState(rawData);
