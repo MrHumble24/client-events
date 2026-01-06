@@ -10,6 +10,7 @@ import type {
   Registration,
   PaymentInfo,
 } from "../types";
+import { logApiError } from "../components/debug/ErrorOverlay";
 
 // ============================================
 // AXIOS INSTANCE
@@ -41,6 +42,30 @@ api.interceptors.request.use(config => {
   }
   return config;
 });
+
+// ============================================
+// ERROR RESPONSE INTERCEPTOR
+// ============================================
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error.response?.status;
+    const url = error.config?.url;
+    const method = error.config?.method?.toUpperCase();
+    const message = error.response?.data?.message || error.message || "Unknown error";
+    const details = JSON.stringify(error.response?.data, null, 2);
+
+    logApiError(
+      `${method} ${url}: ${message}`,
+      status,
+      `${error.config?.baseURL}${url}`,
+      details
+    );
+
+    return Promise.reject(error);
+  }
+);
 
 // ============================================
 // USER API
