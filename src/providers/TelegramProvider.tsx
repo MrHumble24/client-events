@@ -64,6 +64,30 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 
         if (!isTg) {
           console.log("Not running in Telegram WebApp, using development mode");
+          
+          // In development, create mock initData for API auth
+          if (import.meta.env.DEV) {
+            const mockUser = {
+              id: 123456789,
+              first_name: "Dev",
+              last_name: "User",
+              username: "devuser",
+              language_code: "en",
+            };
+            const authDate = Math.floor(Date.now() / 1000);
+            const mockInitData = `user=${encodeURIComponent(JSON.stringify(mockUser))}&auth_date=${authDate}&hash=dev_hash`;
+            setInitData(mockInitData);
+            setInitDataRawState(mockInitData);
+            
+            // Try to fetch/create user from backend
+            try {
+              const user = await userApi.getMe();
+              setUser(user);
+            } catch (error) {
+              console.log("Dev mode: User not found or API error, will create on onboarding");
+            }
+          }
+          
           setIsTelegramApp(false);
           setIsReady(true);
           setLoading(false);
